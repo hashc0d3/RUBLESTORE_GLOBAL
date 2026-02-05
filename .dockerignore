@@ -1,0 +1,15 @@
+node_modules
+.pnpm-store
+.next
+dist
+out
+.turbo
+.git
+.env
+.env.*
+!.env.example
+*.log
+payload-data
+media
+.idea
+.vscode
