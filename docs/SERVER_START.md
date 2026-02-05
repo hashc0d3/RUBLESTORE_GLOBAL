@@ -13,6 +13,14 @@ docker compose up -d --build
 - Сайт: http://155.117.46.144:3000  
 - API: http://155.117.46.144:4000  
 
+**Если :3000 не открывается** — откройте порты на сервере (Debian/Ubuntu):
+```bash
+sudo ufw allow 3000
+sudo ufw allow 4000
+sudo ufw reload
+```
+Проверка логов web: `docker compose logs -f web`.
+
 Для сервера по IP задайте в `.env`:
 ```env
 PAYLOAD_PUBLIC_SERVER_URL=http://155.117.46.144

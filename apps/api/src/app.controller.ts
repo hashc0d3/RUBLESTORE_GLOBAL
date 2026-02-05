@@ -5,6 +5,11 @@ import { AppService } from './app.service';
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get()
+  getRoot() {
+    return { ok: true, api: 'ruble-store', docs: '/products' };
+  }
+
   @Get('health')
   getHealth() {
     return this.appService.getHealth();

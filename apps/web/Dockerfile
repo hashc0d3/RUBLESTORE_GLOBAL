@@ -31,4 +31,5 @@ COPY --from=builder /app .
 WORKDIR /app
 EXPOSE 3000
 # Миграции при каждом старте (идемпотентно), затем Next.js
-CMD ["sh", "-c", "pnpm --filter web db:migrate && pnpm --filter web start"]
+# -H 0.0.0.0 — слушать снаружи контейнера (иначе только localhost)
+CMD ["sh", "-c", "pnpm --filter web db:migrate && pnpm --filter web start -- -H 0.0.0.0"]
