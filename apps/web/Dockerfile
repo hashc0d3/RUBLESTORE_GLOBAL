@@ -32,7 +32,6 @@ RUN pnpm --filter web build
 FROM base AS runner
 ENV NODE_ENV=production
 ENV PORT=3000
-ENV NODE_OPTIONS="--no-experimental-fetch"
 # Копируем только production зависимости (меньше размер)
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/apps/web/node_modules ./apps/web/node_modules
@@ -44,10 +43,11 @@ COPY --from=builder /app/apps/web/src ./apps/web/src
 COPY --from=builder /app/apps/web/package.json ./apps/web/
 COPY --from=builder /app/apps/web/next.config.ts ./apps/web/
 COPY --from=builder /app/apps/web/tsconfig.json ./apps/web/
+COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 WORKDIR /app
 EXPOSE 3000
-# Миграции при старте (при ошибке всё равно запускаем Next.js, чтобы сайт открывался)
+# Миграции с NODE_OPTIONS (исправляет undici), Next.js без него (нужен Request)
 # Запускаем next start напрямую с -H 0.0.0.0 для доступа снаружи контейнера
-CMD ["sh", "-c", "pnpm --filter web db:migrate || true && cd apps/web && pnpm exec next start -H 0.0.0.0"]
+CMD ["sh", "-c", "NODE_OPTIONS='--no-experimental-fetch' pnpm --filter web db:migrate || true && cd apps/web && pnpm exec next start -H 0.0.0.0"]
