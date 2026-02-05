@@ -1,8 +1,6 @@
 # Build from monorepo root: docker build -f apps/web/Dockerfile .
 FROM node:20-alpine AS base
-# Исправление ошибки undici: отключаем экспериментальный fetch (встроен в Node 20)
-ENV NODE_OPTIONS="--no-experimental-fetch"
-# Установка pnpm через npm (часто работает, когда corepack не может скачать с registry)
+# Установка pnpm через npm (обход проблем corepack с registry на сервере)
 RUN npm install -g pnpm@9
 WORKDIR /app
 
