@@ -49,5 +49,5 @@ COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 WORKDIR /app
 EXPOSE 3000
 # Миграции при старте (при ошибке всё равно запускаем Next.js, чтобы сайт открывался)
-# -H 0.0.0.0 — слушать снаружи контейнера (иначе только localhost)
-CMD ["sh", "-c", "pnpm --filter web db:migrate || true && pnpm --filter web start -- -H 0.0.0.0"]
+# Запускаем next start напрямую с -H 0.0.0.0 для доступа снаружи контейнера
+CMD ["sh", "-c", "pnpm --filter web db:migrate || true && cd apps/web && pnpm exec next start -H 0.0.0.0"]
