@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Product } from '@/entities/product';
 
 interface ProductGridProps {
@@ -42,18 +42,66 @@ function ScrollHintIcon() {
 export function ProductGrid({ products, catalogReturnQuery }: ProductGridProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const dragStartRef = useRef<{ el: HTMLDivElement; x: number; scrollLeft: number; pointerId: number } | null>(null);
+  const isDraggingRef = useRef(false);
 
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const check = () => {
-      setCanScrollRight(el.scrollWidth > el.clientWidth);
-    };
+    const check = () => setCanScrollRight(el.scrollWidth > el.clientWidth);
     check();
     const ro = new ResizeObserver(check);
     ro.observe(el);
     return () => ro.disconnect();
   }, [products.length]);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    const el = scrollRef.current;
+    if (!el) return;
+    dragStartRef.current = {
+      el,
+      x: e.clientX,
+      scrollLeft: el.scrollLeft,
+      pointerId: e.pointerId,
+    };
+    isDraggingRef.current = false;
+    // Не используем setPointerCapture — иначе клик не доходит до Link и переход не срабатывает
+
+    const DRAG_THRESHOLD = 8;
+    const onMove = (moveEvent: PointerEvent) => {
+      const start = dragStartRef.current;
+      if (!start || moveEvent.pointerId !== start.pointerId) return;
+      const dx = start.x - moveEvent.clientX;
+      if (!isDraggingRef.current && Math.abs(dx) > DRAG_THRESHOLD) {
+        isDraggingRef.current = true;
+        document.body.classList.add('cursor-grabbing', 'select-none');
+      }
+      if (isDraggingRef.current) {
+        start.el.scrollLeft = start.scrollLeft + dx;
+      }
+    };
+    const onUp = (upEvent: PointerEvent) => {
+      const start = dragStartRef.current;
+      if (start && upEvent.pointerId === start.pointerId) {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+      }
+      document.body.classList.remove('cursor-grabbing', 'select-none');
+      dragStartRef.current = null;
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  }, []);
+
+  const handleClickCapture = useCallback((e: React.MouseEvent) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      isDraggingRef.current = false;
+    }
+  }, []);
 
   if (products.length === 0) {
     return (
@@ -67,7 +115,11 @@ export function ProductGrid({ products, catalogReturnQuery }: ProductGridProps) 
     <div className="relative w-full">
       <div
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto pb-2 scroll-smooth scrollbar-hide pl-4 md:pl-[max(1rem,calc((100vw-72rem)/2+1rem))]"
+        role="region"
+        aria-label="Товары категории — можно листать перетаскиванием"
+        className={`flex gap-6 overflow-x-auto pb-2 scroll-smooth scrollbar-hide cursor-grab active:cursor-grabbing pl-4 md:pl-[max(1rem,calc((100vw-72rem)/2+1rem))] ${canScrollRight ? 'pr-14' : ''}`}
+        onPointerDown={handlePointerDown}
+        onClickCapture={handleClickCapture}
       >
       {products.map((product) => {
         const imgUrl = getImageUrl(product);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Category } from '@/entities/category';
 
 const STORAGE_OPTIONS = ['256GB', '512GB', '1024GB', '2048GB'] as const;
@@ -47,8 +47,58 @@ export function FilterModal({
   selectedStorage,
   onStorageToggle,
 }: FilterModalProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const categoriesScrollRef = useRef<HTMLDivElement>(null);
   const [canScrollRight, setCanScrollRight] = useState(false);
+  const dragStartRef = useRef<{ el: HTMLDivElement; x: number; scrollLeft: number; pointerId: number } | null>(null);
+  const isDraggingRef = useRef(false);
+
+  const handleCategoriesPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    const el = categoriesScrollRef.current;
+    if (!el) return;
+    dragStartRef.current = {
+      el,
+      x: e.clientX,
+      scrollLeft: el.scrollLeft,
+      pointerId: e.pointerId,
+    };
+    isDraggingRef.current = false;
+    // Не используем setPointerCapture — иначе клик не доходит до кнопок категорий
+
+    const DRAG_THRESHOLD = 8;
+    const onMove = (moveEvent: PointerEvent) => {
+      const start = dragStartRef.current;
+      if (!start || moveEvent.pointerId !== start.pointerId) return;
+      const dx = start.x - moveEvent.clientX;
+      if (!isDraggingRef.current && Math.abs(dx) > DRAG_THRESHOLD) {
+        isDraggingRef.current = true;
+        document.body.classList.add('cursor-grabbing', 'select-none');
+      }
+      if (isDraggingRef.current) {
+        start.el.scrollLeft = start.scrollLeft + dx;
+      }
+    };
+    const onUp = (upEvent: PointerEvent) => {
+      const start = dragStartRef.current;
+      if (start && upEvent.pointerId === start.pointerId) {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+      }
+      document.body.classList.remove('cursor-grabbing', 'select-none');
+      dragStartRef.current = null;
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  }, []);
+
+  const handleCategoriesClickCapture = useCallback((e: React.MouseEvent) => {
+    if (isDraggingRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      isDraggingRef.current = false;
+    }
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -62,11 +112,9 @@ export function FilterModal({
   }, [isOpen]);
 
   useEffect(() => {
-    const el = scrollRef.current;
+    const el = categoriesScrollRef.current;
     if (!el || !isOpen) return;
-    const check = () => {
-      setCanScrollRight(el.scrollWidth > el.clientWidth);
-    };
+    const check = () => setCanScrollRight(el.scrollWidth > el.clientWidth);
     check();
     const ro = new ResizeObserver(check);
     ro.observe(el);
@@ -99,8 +147,12 @@ export function FilterModal({
           <p className="mb-3 text-sm font-medium text-neutral-600">Категории</p>
           <div className="relative -mx-1">
             <div
-              ref={scrollRef}
-              className={`flex flex-nowrap gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-2 ${canScrollRight ? 'pr-12' : ''}`}
+              ref={categoriesScrollRef}
+              role="region"
+              aria-label="Категории — можно листать перетаскиванием"
+              className={`flex flex-nowrap gap-2 overflow-x-auto scrollbar-hide scroll-smooth pb-2 cursor-grab active:cursor-grabbing ${canScrollRight ? 'pr-12' : ''}`}
+              onPointerDown={handleCategoriesPointerDown}
+              onClickCapture={handleCategoriesClickCapture}
             >
               <button
                 type="button"

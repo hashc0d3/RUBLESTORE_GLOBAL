@@ -95,6 +95,11 @@ export function CatalogFilters({
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
         </button>
+        {selectedCategorySlugs.length === 0 ? (
+          <span className="inline-flex items-center rounded-full border border-neutral-200 bg-neutral-100 px-3 py-1.5 text-sm font-medium text-neutral-600">
+            Все категории
+          </span>
+        ) : null}
         {selectedCategories.map((cat) => (
           <span
             key={cat.id}

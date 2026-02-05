@@ -1,9 +1,23 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Product, ProductColorImage } from '@/entities/product';
 import { Breadcrumbs } from '@/shared/ui/Breadcrumbs';
+
+function ScrollHintIcon() {
+  return (
+    <svg
+      className="h-5 w-5 shrink-0 text-neutral-500"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  );
+}
 
 const SIM_TYPE_LABELS: Record<string, string> = {
   'sim-esim': 'SIM+eSIM',
@@ -27,13 +41,35 @@ interface ProductPageClientProps {
   product: Product;
   /** URL возврата в каталог с теми же фильтрами (только /catalog или /catalog?...) */
   returnTo?: string | null;
+  /** Товары из той же категории (похожие) */
+  similarProducts?: Product[];
 }
 
 function isValidReturnTo(value: string | undefined | null): value is string {
   return typeof value === 'string' && (value === '/catalog' || value.startsWith('/catalog?'));
 }
 
-export function ProductPageClient({ product, returnTo }: ProductPageClientProps) {
+function getProductImageUrl(p: Product): string | null {
+  const colors = p.colors ?? [];
+  const firstImg = colors[0]?.images?.[0];
+  if (!firstImg) return null;
+  if (firstImg.imageUrl) return firstImg.imageUrl;
+  const media = firstImg.image;
+  if (typeof media === 'object' && media?.url) return media.url ?? null;
+  return null;
+}
+
+function getProductMinPrice(p: Product): number {
+  const colors = p.colors ?? [];
+  const prices = colors.flatMap((c) =>
+    (c.manufacturerCountries ?? []).flatMap((m) =>
+      (m.simTypes ?? []).map((s) => s.price)
+    )
+  );
+  return prices.length > 0 ? Math.min(...prices) : 0;
+}
+
+export function ProductPageClient({ product, returnTo, similarProducts = [] }: ProductPageClientProps) {
   const catalogHref = isValidReturnTo(returnTo) ? returnTo : '/catalog';
   const colors = product.colors ?? [];
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
@@ -53,6 +89,69 @@ export function ProductPageClient({ product, returnTo }: ProductPageClientProps)
     Math.max(0, images.length - 1)
   );
   const currentImageUrl = getImageUrl(images[safeImageIndex]) ?? mainImageUrl;
+
+  const similarScrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollSimilarRight, setCanScrollSimilarRight] = useState(false);
+  const similarDragStartRef = useRef<{ el: HTMLDivElement; x: number; scrollLeft: number; pointerId: number } | null>(null);
+  const similarIsDraggingRef = useRef(false);
+
+  useEffect(() => {
+    const el = similarScrollRef.current;
+    if (!el || similarProducts.length === 0) return;
+    const check = () => setCanScrollSimilarRight(el.scrollWidth > el.clientWidth);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [similarProducts.length]);
+
+  const handleSimilarPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    const el = similarScrollRef.current;
+    if (!el) return;
+    similarDragStartRef.current = {
+      el,
+      x: e.clientX,
+      scrollLeft: el.scrollLeft,
+      pointerId: e.pointerId,
+    };
+    similarIsDraggingRef.current = false;
+    // Не используем setPointerCapture — иначе клик не доходит до Link и переход не срабатывает
+
+    const DRAG_THRESHOLD = 8;
+    const onMove = (moveEvent: PointerEvent) => {
+      const start = similarDragStartRef.current;
+      if (!start || moveEvent.pointerId !== start.pointerId) return;
+      const dx = start.x - moveEvent.clientX;
+      if (!similarIsDraggingRef.current && Math.abs(dx) > DRAG_THRESHOLD) {
+        similarIsDraggingRef.current = true;
+        document.body.classList.add('cursor-grabbing', 'select-none');
+      }
+      if (similarIsDraggingRef.current) {
+        start.el.scrollLeft = start.scrollLeft + dx;
+      }
+    };
+    const onUp = (upEvent: PointerEvent) => {
+      const start = similarDragStartRef.current;
+      if (start && upEvent.pointerId === start.pointerId) {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+      }
+      document.body.classList.remove('cursor-grabbing', 'select-none');
+      similarDragStartRef.current = null;
+    };
+
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  }, []);
+
+  const handleSimilarClickCapture = useCallback((e: React.MouseEvent) => {
+    if (similarIsDraggingRef.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      similarIsDraggingRef.current = false;
+    }
+  }, []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -248,6 +347,75 @@ export function ProductPageClient({ product, returnTo }: ProductPageClientProps)
         </div>
         </div>
       </section>
+
+      {similarProducts.length > 0 && (
+        <section className="w-full border-t border-neutral-200 bg-neutral-50 py-6">
+          <div className="mx-auto max-w-6xl px-4">
+            <h2 className="mb-3 text-xl font-bold tracking-tight text-neutral-900">
+              Похожие товары
+            </h2>
+            <div className="relative -mx-4 md:mx-0">
+              <div
+                ref={similarScrollRef}
+                role="region"
+                aria-label="Похожие товары — можно листать перетаскиванием"
+                className={`flex gap-4 overflow-x-auto pb-2 scroll-smooth scrollbar-hide cursor-grab active:cursor-grabbing ${canScrollSimilarRight ? 'pr-14' : ''}`}
+                onPointerDown={handleSimilarPointerDown}
+                onClickCapture={handleSimilarClickCapture}
+              >
+              {similarProducts.map((similar) => {
+                const imgUrl = getProductImageUrl(similar);
+                const minPrice = getProductMinPrice(similar);
+                const similarHref =
+                  catalogHref === '/catalog'
+                    ? `/catalog/product/${similar.id}`
+                    : `/catalog/product/${similar.id}?returnTo=${encodeURIComponent(catalogHref)}`;
+                return (
+                  <Link
+                    key={similar.id}
+                    href={similarHref}
+                    className="group flex min-w-[140px] max-w-[140px] flex-shrink-0 flex-col text-center"
+                  >
+                    <div className="aspect-square overflow-hidden rounded-lg bg-neutral-100">
+                      {imgUrl ? (
+                        <img
+                          src={imgUrl}
+                          alt={similar.title}
+                          className="h-full w-full object-cover transition duration-200 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="flex h-full items-center justify-center text-xs text-neutral-400">
+                          Нет фото
+                        </div>
+                      )}
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-sm font-medium text-neutral-900 group-hover:underline">
+                      {similar.title}
+                    </p>
+                    {minPrice > 0 && (
+                      <p className="mt-1 text-sm font-semibold text-neutral-900">
+                        {minPrice.toLocaleString('ru-RU')} ₽
+                      </p>
+                    )}
+                  </Link>
+                );
+              })}
+              </div>
+              {canScrollSimilarRight && (
+                <div
+                  className="pointer-events-none absolute right-0 top-0 bottom-2 flex w-12 items-center justify-end pl-4"
+                  style={{
+                    background: 'linear-gradient(to left, rgb(249 250 251) 0%, rgb(249 250 251 / 0.6) 50%, transparent 100%)',
+                  }}
+                  aria-hidden
+                >
+                  <ScrollHintIcon />
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
     </main>
   );
 }
