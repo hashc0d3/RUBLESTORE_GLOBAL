@@ -2,7 +2,7 @@ import type { NextConfig } from 'next';
 import { withPayload } from '@payloadcms/next/withPayload';
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // standalone отключен — нужны исходники для миграций Payload
   reactStrictMode: true,
   images: {
     remotePatterns: [

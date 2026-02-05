@@ -13,3 +13,17 @@ payload-data
 media
 .idea
 .vscode
+# Ускоряем сборку — исключаем ненужное
+docs/
+*.md
+!README.md
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+coverage/
+.vercel
+*.tsbuildinfo
+apps/web/.next
+apps/api/dist
