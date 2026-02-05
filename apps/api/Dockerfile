@@ -1,6 +1,6 @@
 # Build from monorepo root: docker build -f apps/api/Dockerfile .
 FROM node:20-alpine AS base
-RUN corepack enable && corepack prepare pnpm@9.14.2 --activate
+RUN npm install -g pnpm@9
 WORKDIR /app
 
 FROM base AS deps

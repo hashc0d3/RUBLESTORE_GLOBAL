@@ -13,13 +13,41 @@ docker compose up -d --build
 - Сайт: http://155.117.46.144:3000  
 - API: http://155.117.46.144:4000  
 
-**Если :3000 не открывается** — откройте порты на сервере (Debian/Ubuntu):
-```bash
-sudo ufw allow 3000
-sudo ufw allow 4000
-sudo ufw reload
-```
-Проверка логов web: `docker compose logs -f web`.
+**Если :3000 не открывается (ERR_CONNECTION_REFUSED)** — на сервере выполните по порядку:
+
+1. Контейнеры запущены и web не падает:
+   ```bash
+   cd /opt/RUBLESTORE_GLOBAL
+   docker compose ps
+   ```
+   У контейнера `ruble-store-web` должен быть статус `Up` (не `Restarting`).
+
+2. Логи web (ошибки миграций или Next.js):
+   ```bash
+   docker compose logs --tail 100 web
+   ```
+
+3. Порт 3000 слушается на хосте:
+   ```bash
+   ss -tlnp | grep 3000
+   # или: netstat -tlnp | grep 3000
+   ```
+   Должна быть строка с `*:3000` или `0.0.0.0:3000`.
+
+4. Фаервол (Debian/Ubuntu) — откройте порты:
+   ```bash
+   sudo ufw status
+   sudo ufw allow 3000
+   sudo ufw allow 4000
+   sudo ufw reload
+   ```
+
+5. После правок перезапуск:
+   ```bash
+   docker compose up -d --build web
+   ```
+
+**Если сборка падает с ошибкой загрузки с registry.npmjs.org** — на сервере должен быть доступ в интернет по HTTPS (для установки pnpm и зависимостей). Проверьте: `docker run --rm node:20-alpine npm ping` или откройте исходящий доступ к `registry.npmjs.org`. Альтернатива: соберите образ на машине с интернетом (`docker compose build`), сохраните (`docker save`), перенесите на сервер и загрузите (`docker load`).
 
 Для сервера по IP задайте в `.env`:
 ```env

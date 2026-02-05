@@ -2,7 +2,8 @@
 FROM node:20-alpine AS base
 # Исправление ошибки undici: отключаем экспериментальный fetch (встроен в Node 20)
 ENV NODE_OPTIONS="--no-experimental-fetch"
-RUN corepack enable && corepack prepare pnpm@9.14.2 --activate
+# Установка pnpm через npm (часто работает, когда corepack не может скачать с registry)
+RUN npm install -g pnpm@9
 WORKDIR /app
 
 FROM base AS deps

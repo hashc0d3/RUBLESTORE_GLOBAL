@@ -24,7 +24,7 @@ services:
     container_name: ruble-store-api
     restart: unless-stopped
     ports:
-      - "4000:4000"
+      - "0.0.0.0:4000:4000"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ruble_store
       PORT: "4000"
@@ -43,7 +43,7 @@ services:
     container_name: ruble-store-web
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "0.0.0.0:3000:3000"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ruble_store
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-ruble-store-dev-secret-key-32-chars-minimum}
