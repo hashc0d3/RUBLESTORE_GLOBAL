@@ -48,6 +48,6 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 WORKDIR /app
 EXPOSE 3000
-# Миграции при каждом старте (идемпотентно), затем Next.js
+# Миграции при старте (при ошибке всё равно запускаем Next.js, чтобы сайт открывался)
 # -H 0.0.0.0 — слушать снаружи контейнера (иначе только localhost)
-CMD ["sh", "-c", "pnpm --filter web db:migrate && pnpm --filter web start -- -H 0.0.0.0"]
+CMD ["sh", "-c", "pnpm --filter web db:migrate || true && pnpm --filter web start -- -H 0.0.0.0"]
