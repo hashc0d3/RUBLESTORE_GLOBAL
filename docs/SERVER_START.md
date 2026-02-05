@@ -47,6 +47,12 @@ docker compose up -d --build
    docker compose up -d --build web
    ```
 
+**Если в логах «relation \"categories\" does not exist»** — миграции не выполнились. Запустите их вручную один раз:
+```bash
+docker compose exec web pnpm --filter web db:migrate
+```
+(Образ переведён на Node 22, чтобы миграции не падали с undici. Если ошибка остаётся — на хосте: `pnpm install && DATABASE_URL=postgresql://postgres:postgres@localhost:5433/ruble_store pnpm --filter web db:migrate`.)
+
 **Если сборка падает с ошибкой загрузки с registry.npmjs.org** — на сервере должен быть доступ в интернет по HTTPS (для установки pnpm и зависимостей). Проверьте: `docker run --rm node:20-alpine npm ping` или откройте исходящий доступ к `registry.npmjs.org`. Альтернатива: соберите образ на машине с интернетом (`docker compose build`), сохраните (`docker save`), перенесите на сервер и загрузите (`docker load`).
 
 Для сервера по IP задайте в `.env`:

@@ -1,5 +1,6 @@
 # Build from monorepo root: docker build -f apps/web/Dockerfile .
-FROM node:20-alpine AS base
+# Node 22 — стабильный fetch, миграции Payload (undici) не падают с "Illegal constructor"
+FROM node:22-alpine AS base
 # Установка pnpm через npm (обход проблем corepack с registry на сервере)
 RUN npm install -g pnpm@9
 WORKDIR /app
