@@ -8,12 +8,12 @@
 docker compose up -d --build
 ```
 
-Поднимаются: Postgres (порт 5433 на хосте), API (4000), Web (3000). Миграции Payload выполняются при старте контейнера web.
+Поднимаются: Postgres (порт 5433 на хосте), API (4000), Web (3001). Миграции Payload выполняются при старте контейнера web.
 
-- Сайт: http://155.117.46.144:3000  
+- Сайт: http://155.117.46.144:3001  
 - API: http://155.117.46.144:4000  
 
-**Если :3000 не открывается (ERR_CONNECTION_REFUSED)** — на сервере выполните по порядку:
+**Если :3001 не открывается (ERR_CONNECTION_REFUSED)** — на сервере выполните по порядку:
 
 1. Контейнеры запущены и web не падает:
    ```bash
@@ -27,17 +27,17 @@ docker compose up -d --build
    docker compose logs --tail 100 web
    ```
 
-3. Порт 3000 слушается на хосте:
+3. Порт 3001 слушается на хосте:
    ```bash
-   ss -tlnp | grep 3000
-   # или: netstat -tlnp | grep 3000
+   ss -tlnp | grep 3001
+   # или: netstat -tlnp | grep 3001
    ```
-   Должна быть строка с `*:3000` или `0.0.0.0:3000`.
+   Должна быть строка с `*:3001` или `0.0.0.0:3001`.
 
 4. Фаервол (Debian/Ubuntu) — откройте порты:
    ```bash
    sudo ufw status
-   sudo ufw allow 3000
+   sudo ufw allow 3001
    sudo ufw allow 4000
    sudo ufw reload
    ```
@@ -51,9 +51,9 @@ docker compose up -d --build
 
 Для сервера по IP задайте в `.env`:
 ```env
-PAYLOAD_PUBLIC_SERVER_URL=http://155.117.46.144
+PAYLOAD_PUBLIC_SERVER_URL=http://155.117.46.144:3001
 NEXT_PUBLIC_API_URL=http://155.117.46.144:4000
-CORS_ORIGIN=http://155.117.46.144
+CORS_ORIGIN=http://155.117.46.144:3001
 ```
 и пересоберите: `docker compose up -d --build`.
 
@@ -69,4 +69,4 @@ CORS_ORIGIN=http://155.117.46.144
 4. **Сборка:** `pnpm build`
 5. **Запуск:** в двух терминалах — `pnpm start:api` и `pnpm start:web`.
 
-Для доступа по 80 порту без :3000 настройте nginx как reverse proxy на `localhost:3000` и при необходимости на `localhost:4000`.
+Для доступа по 80 порту без :3001 настройте nginx как reverse proxy на `localhost:3001` и при необходимости на `localhost:4000`.
