@@ -49,6 +49,6 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 WORKDIR /app
 EXPOSE 3000
-# Миграции с NODE_OPTIONS (исправляет undici), Next.js без него (нужен Request)
-# Запускаем next start напрямую с -H 0.0.0.0 для доступа снаружи контейнера
-CMD ["sh", "-c", "NODE_OPTIONS='--no-experimental-fetch' pnpm --filter web db:migrate || true && cd apps/web && pnpm exec next start -H 0.0.0.0"]
+# Миграции Payload (без NODE_OPTIONS — нужен Headers для Payload 3)
+# Next.js запускаем напрямую с -H 0.0.0.0 для доступа снаружи контейнера
+CMD ["sh", "-c", "pnpm --filter web db:migrate || true && cd apps/web && pnpm exec next start -H 0.0.0.0"]

@@ -85,6 +85,15 @@ docker compose logs web --tail 150
 
 Частые причины:
 - **Нет доступа к БД** — проверьте, что контейнер `postgres` запущен: `docker compose ps`
+- **Ошибка пароля PostgreSQL** (`password authentication failed`) — том БД был создан с другим паролем. Варианты:
+  - **Если данные не нужны:** `docker compose down -v && docker compose up -d --build` (удалит том и создаст новый)
+  - **Если данные нужны:** подключитесь к postgres и измените пароль:
+    ```bash
+    docker compose up -d postgres
+    sleep 5  # подождать запуск
+    docker exec -it ruble-store-postgres psql -U postgres -d postgres -c "ALTER USER postgres WITH PASSWORD 'postgres';"
+    docker compose up -d
+    ```
 - **Колонка в БД не совпадает со схемой** — например `column products_colors.is_default does not exist`. Тогда на сервере выполните миграции:  
   `docker compose run --rm web sh -c "NODE_OPTIONS='--no-experimental-fetch' pnpm --filter web db:migrate"`
 - **Перезапуск контейнера** — каталог и шапка теперь используют Local API (без HTTP-запроса к себе), после деплоя страницы должны стабильно открываться.
