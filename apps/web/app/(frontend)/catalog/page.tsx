@@ -1,4 +1,4 @@
-import { fetchPayload } from '@/shared/lib/api';
+import { getPayloadServer } from '@/shared/lib/payload-server';
 import type { Category } from '@/entities/category';
 import type { Product } from '@/entities/product';
 import { CatalogPage } from '@/views/catalog';
@@ -19,27 +19,40 @@ export default async function CatalogRoute({ searchParams }: PageProps) {
     rawStorage == null ? [] : Array.isArray(rawStorage) ? rawStorage : [rawStorage];
   const validStorage = storageValues.filter((s) => STORAGE_VALUES.includes(s));
 
-  const categoriesRes = await fetchPayload<Category>('categories', {
+  const payload = await getPayloadServer();
+
+  const categoriesRes = await payload.find({
+    collection: 'categories',
     limit: 100,
+    depth: 0,
   });
-  const categories = categoriesRes.docs;
+  const categories = categoriesRes.docs as Category[];
 
   const selectedCategoryIds = categories
     .filter((c) => categorySlugs.includes(c.slug))
     .map((c) => c.id);
 
-  const productsRes = await fetchPayload<Product>('products', {
+  const productsWhere: Record<string, unknown> = {
+    status: { equals: 'published' },
+  };
+  if (selectedCategoryIds.length === 1) {
+    productsWhere.category = { equals: selectedCategoryIds[0] };
+  } else if (selectedCategoryIds.length > 1) {
+    productsWhere.category = { in: selectedCategoryIds };
+  }
+  if (validStorage.length === 1) {
+    productsWhere.storage = { equals: validStorage[0] };
+  } else if (validStorage.length > 1) {
+    productsWhere.storage = { in: validStorage };
+  }
+
+  const productsRes = await payload.find({
+    collection: 'products',
     depth: 1,
     limit: 50,
-    where: {
-      status: { equals: 'published' },
-      ...(selectedCategoryIds.length
-        ? { category: { in: selectedCategoryIds } }
-        : {}),
-      ...(validStorage.length ? { storage: { in: validStorage } } : {}),
-    },
+    where: productsWhere,
   });
-  const products = productsRes.docs;
+  const products = productsRes.docs as Product[];
 
   return (
     <CatalogPage

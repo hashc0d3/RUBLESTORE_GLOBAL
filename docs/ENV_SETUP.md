@@ -72,3 +72,19 @@ EOF
 # Запуск
 docker compose up -d --build
 ```
+
+---
+
+## Ошибка «Application error: a server-side exception has occurred»
+
+На сервере посмотрите **реальную причину** в логах контейнера web:
+
+```bash
+docker compose logs web --tail 150
+```
+
+Частые причины:
+- **Нет доступа к БД** — проверьте, что контейнер `postgres` запущен: `docker compose ps`
+- **Колонка в БД не совпадает со схемой** — например `column products_colors.is_default does not exist`. Тогда на сервере выполните миграции:  
+  `docker compose run --rm web sh -c "NODE_OPTIONS='--no-experimental-fetch' pnpm --filter web db:migrate"`
+- **Перезапуск контейнера** — каталог и шапка теперь используют Local API (без HTTP-запроса к себе), после деплоя страницы должны стабильно открываться.

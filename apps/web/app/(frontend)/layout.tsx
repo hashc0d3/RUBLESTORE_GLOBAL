@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { fetchPayload } from '@/shared/lib/api';
+import { getPayloadServer } from '@/shared/lib/payload-server';
 import type { Category } from '@/entities/category';
 import { HeaderNavScroll } from '@/shared/ui/HeaderNavScroll';
 import { Footer } from '@/shared/ui/Footer';
@@ -23,10 +23,13 @@ export default async function FrontendLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const categoriesRes = await fetchPayload<Category>('categories', {
+  const payload = await getPayloadServer();
+  const categoriesRes = await payload.find({
+    collection: 'categories',
     limit: 100,
+    depth: 0,
   });
-  const categories = categoriesRes.docs;
+  const categories = categoriesRes.docs as Category[];
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50 text-neutral-900 antialiased">
