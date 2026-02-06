@@ -41,19 +41,28 @@ export default async function CatalogRoute({ searchParams }: PageProps) {
   } else if (selectedCategoryIds.length > 1) {
     productsWhere.category = { in: selectedCategoryIds };
   }
-  if (validStorage.length === 1) {
-    productsWhere.storage = { equals: validStorage[0] };
-  } else if (validStorage.length > 1) {
-    productsWhere.storage = { in: validStorage };
-  }
 
   const productsRes = await payload.find({
     collection: 'products',
     depth: 1,
-    limit: 50,
+    limit: 100,
     where: productsWhere,
   });
-  const products = parseProducts(productsRes.docs) as Product[];
+  let products = parseProducts(productsRes.docs) as Product[];
+
+  // Фильтр по объёму памяти: объём задаётся внутри цветов (блок «Объём памяти»)
+  if (validStorage.length > 0) {
+    products = products.filter((p) => {
+      const storages = new Set<string>();
+      (p.colors ?? []).forEach((c) => {
+        (c.manufacturerCountries ?? []).forEach((m) => {
+          if (m.country) storages.add(m.country);
+        });
+      });
+      return validStorage.some((s) => storages.has(s));
+    });
+  }
+  products = products.slice(0, 50);
 
   return (
     <CatalogPage

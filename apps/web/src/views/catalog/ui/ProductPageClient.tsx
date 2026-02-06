@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Product, ProductColorImage } from '@/entities/product';
 import { Breadcrumbs } from '@/shared/ui/Breadcrumbs';
+import { cartStore } from '@/features/cart';
 
 function ScrollHintIcon() {
   return (
@@ -62,8 +63,8 @@ function getProductImageUrl(p: Product): string | null {
 function getProductMinPrice(p: Product): number {
   const colors = p.colors ?? [];
   const prices = colors.flatMap((c) =>
-    (c.manufacturerCountries ?? []).flatMap((m) =>
-      (m.simTypes ?? []).map((s) => s.price)
+    (c.manufacturerCountries ?? []).flatMap((storage) =>
+      (storage.simTypes ?? []).map((s) => s.price)
     )
   );
   return prices.length > 0 ? Math.min(...prices) : 0;
@@ -76,9 +77,9 @@ export function ProductPageClient({ product, returnTo, similarProducts = [] }: P
   const [selectedCountryIndex, setSelectedCountryIndex] = useState(0);
   const [selectedSimIndex, setSelectedSimIndex] = useState(0);
   const selectedColor = colors[selectedColorIndex];
-  const countries = selectedColor?.manufacturerCountries ?? [];
-  const selectedCountry = countries[selectedCountryIndex];
-  const simTypes = selectedCountry?.simTypes ?? [];
+  const storages = selectedColor?.manufacturerCountries ?? [];
+  const selectedStorage = storages[selectedCountryIndex];
+  const simTypes = selectedStorage?.simTypes ?? [];
   const selectedSim = simTypes[selectedSimIndex];
   const price = selectedSim?.price ?? 0;
   const images = selectedColor?.images ?? [];
@@ -94,6 +95,7 @@ export function ProductPageClient({ product, returnTo, similarProducts = [] }: P
   const [canScrollSimilarRight, setCanScrollSimilarRight] = useState(false);
   const similarDragStartRef = useRef<{ el: HTMLDivElement; x: number; scrollLeft: number; pointerId: number } | null>(null);
   const similarIsDraggingRef = useRef(false);
+  const [justAdded, setJustAdded] = useState(false);
 
   useEffect(() => {
     const el = similarScrollRef.current;
@@ -183,9 +185,21 @@ export function ProductPageClient({ product, returnTo, similarProducts = [] }: P
         <div className="mx-auto max-w-6xl px-4">
           <Link
             href={catalogHref}
-            className="inline-block text-sm text-neutral-500 hover:text-neutral-900"
+            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
           >
-            ← Каталог
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-4 w-4"
+            >
+              <path
+                fillRule="evenodd"
+                d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
+                clipRule="evenodd"
+              />
+            </svg>
+            Каталог
           </Link>
 
           <div className="mt-6 grid gap-10 md:grid-cols-2 md:gap-14">
@@ -240,9 +254,6 @@ export function ProductPageClient({ product, returnTo, similarProducts = [] }: P
             <h1 className="text-2xl font-semibold text-neutral-900">
               {product.title}
             </h1>
-            {product.storage && (
-              <p className="mt-1 text-sm text-neutral-500">Объём памяти: {product.storage}</p>
-            )}
             {simTypes.length > 0 && price > 0 && (
               <p className="mt-2 text-2xl font-semibold text-neutral-900">
                 {price.toLocaleString('ru-RU')} ₽
@@ -281,13 +292,13 @@ export function ProductPageClient({ product, returnTo, similarProducts = [] }: P
               </div>
             )}
 
-            {countries.length > 0 && (
+            {storages.length > 0 && (
               <div className="mt-4">
                 <p className="mb-3 text-xs font-medium uppercase tracking-wider text-neutral-500">
-                  Страна производителя
+                  Объём памяти
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {countries.map((mc, i) => {
+                  {storages.map((mc, i) => {
                     const isSelected = selectedCountryIndex === i;
                     return (
                       <button
@@ -338,11 +349,40 @@ export function ProductPageClient({ product, returnTo, similarProducts = [] }: P
               </div>
             )}
 
-            {product.description && (
-              <p className="mt-5 text-sm leading-relaxed text-neutral-600">
-                {product.description}
-              </p>
-            )}
+            <div className="mt-6 flex flex-col gap-4">
+              {colors.length > 0 && (
+                <button
+                  type="button"
+                  disabled={!selectedColor || !selectedStorage || !selectedSim}
+                  onClick={() => {
+                    if (!selectedColor || !selectedStorage || !selectedSim || price <= 0) return;
+                    cartStore.add({
+                      productId: String(product.id),
+                      title: product.title,
+                      color: selectedColor.color,
+                      storage: selectedStorage.country,
+                      simType: selectedSim.simType,
+                      price,
+                    });
+                    setJustAdded(true);
+                    setTimeout(() => setJustAdded(false), 900);
+                  }}
+                  className={`inline-flex items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-white shadow-sm transition-all duration-200 ease-out disabled:cursor-not-allowed disabled:bg-neutral-200 disabled:text-neutral-500 ${
+                    justAdded
+                      ? 'bg-emerald-600 hover:bg-emerald-600 active:bg-emerald-700 scale-95'
+                      : 'bg-neutral-900 hover:bg-neutral-800 active:bg-neutral-950'
+                  }`}
+                >
+                  {justAdded ? 'Добавлено' : 'Добавить в корзину'}
+                </button>
+              )}
+
+              {product.description && (
+                <p className="text-sm leading-relaxed text-neutral-600">
+                  {product.description}
+                </p>
+              )}
+            </div>
           </div>
         </div>
         </div>

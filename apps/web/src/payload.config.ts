@@ -166,24 +166,10 @@ export default buildConfig({
           defaultValue: 'draft',
         },
         {
-          name: 'storage',
-          type: 'select',
-          label: 'Объём памяти',
-          admin: {
-            description: 'Варианты: 256GB, 512GB, 1024GB, 2048GB',
-          },
-          options: [
-            { label: '256GB', value: '256GB' },
-            { label: '512GB', value: '512GB' },
-            { label: '1024GB', value: '1024GB' },
-            { label: '2048GB', value: '2048GB' },
-          ],
-        },
-        {
           type: 'collapsible',
           label: 'Цвета',
           admin: {
-            description: 'Варианты по цвету: название, блок «Страна производителя» (страна + цена) и изображения.',
+            description: 'Варианты по цвету: название, блок «Объём памяти» (объём + цена) и изображения.',
           },
           fields: [
             {
@@ -199,21 +185,30 @@ export default buildConfig({
                 },
                 {
                   type: 'collapsible',
-                  label: 'Страна производителя',
+                  label: 'Объём памяти',
                   admin: {
-                    description: 'Страна производства. У каждой страны — блок «Тип SIM» с вариантами SIM и ценой.',
+                    description: 'Объём памяти. Для каждого объёма — блок «Тип SIM» с вариантами SIM и ценой.',
                   },
                   fields: [
                     {
                       name: 'manufacturerCountries',
                       type: 'array',
-                      label: 'Страна производителя',
+                      label: 'Объём памяти',
                       fields: [
                         {
                           name: 'country',
-                          type: 'text',
+                          type: 'select',
                           required: true,
-                          label: 'Страна',
+                          label: 'Объём памяти',
+                          admin: {
+                            description: 'Варианты: 256GB, 512GB, 1024GB, 2048GB',
+                          },
+                          options: [
+                            { label: '256GB', value: '256GB' },
+                            { label: '512GB', value: '512GB' },
+                            { label: '1024GB', value: '1024GB' },
+                            { label: '2048GB', value: '2048GB' },
+                          ],
                         },
                         {
                           type: 'collapsible',

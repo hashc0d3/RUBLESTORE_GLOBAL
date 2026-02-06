@@ -176,16 +176,15 @@ export interface Product {
   category: number | Category;
   description?: string | null;
   status?: ('draft' | 'published') | null;
-  /**
-   * Варианты: 256GB, 512GB, 1024GB, 2048GB
-   */
-  storage?: ('256GB' | '512GB' | '1024GB' | '2048GB') | null;
   colors?:
     | {
         color: string;
         manufacturerCountries?:
           | {
-              country: string;
+              /**
+               * Варианты: 256GB, 512GB, 1024GB, 2048GB
+               */
+              country: '256GB' | '512GB' | '1024GB' | '2048GB';
               simTypes?:
                 | {
                     simType: 'sim-esim' | 'esim' | 'dual-sim';
@@ -379,7 +378,6 @@ export interface ProductsSelect<T extends boolean = true> {
   category?: T;
   description?: T;
   status?: T;
-  storage?: T;
   colors?:
     | T
     | {

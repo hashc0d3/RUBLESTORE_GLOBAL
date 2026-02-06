@@ -43,11 +43,14 @@ export function Breadcrumbs({
           return (
             <span key={index} className="flex items-center gap-1.5">
               {item.href && !isLast ? (
-                <Link href={item.href} className="hover:text-neutral-900">
+                <Link
+                  href={item.href}
+                  className="rounded-full px-3 py-1.5 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
+                >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isLast ? 'text-neutral-900' : ''}>
+                <span className={isLast ? 'text-neutral-900 px-3 py-1.5' : 'px-3 py-1.5'}>
                   {item.label}
                 </span>
               )}
@@ -89,11 +92,14 @@ export function Breadcrumbs({
         return (
           <span key={index} className="flex items-center gap-1.5">
             {item.href && !isLast ? (
-              <Link href={item.href} className="hover:text-neutral-900">
+              <Link
+                href={item.href}
+                className="rounded-full px-3 py-1.5 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
+              >
                 {item.label}
               </Link>
             ) : (
-              <span className={isLast ? 'text-neutral-900' : ''}>
+              <span className={isLast ? 'text-neutral-900 px-3 py-1.5' : 'px-3 py-1.5'}>
                 {item.label}
               </span>
             )}

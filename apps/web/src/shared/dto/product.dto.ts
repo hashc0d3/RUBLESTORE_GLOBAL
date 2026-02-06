@@ -1,10 +1,24 @@
 import { z } from 'zod';
 
-/** Изображение цвета товара */
+/** Изображение цвета товара.
+ * В Payload поле image может быть:
+ * - числовым id
+ * - вложенным объектом media (c url, alt, id и др. полями)
+ * alt также может быть null.
+ */
 const ProductColorImageDto = z.object({
-  image: z.union([z.number(), z.object({ url: z.string().optional(), alt: z.string().optional(), id: z.number().optional() })]),
+  image: z.union([
+    z.number(),
+    z
+      .object({
+        id: z.number().optional(),
+        url: z.string().nullable().optional(),
+        alt: z.string().nullable().optional(),
+      })
+      .passthrough(),
+  ]),
   imageUrl: z.string().nullable().optional(),
-  alt: z.string().optional(),
+  alt: z.string().nullable().optional(),
   id: z.union([z.string(), z.number()]).optional(),
 });
 

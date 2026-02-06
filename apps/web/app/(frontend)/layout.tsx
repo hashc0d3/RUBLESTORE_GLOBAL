@@ -4,6 +4,7 @@ import { parseCategories } from '@/shared/dto';
 import type { Category } from '@/entities/category';
 import { HeaderNavScroll } from '@/shared/ui/HeaderNavScroll';
 import { Footer } from '@/shared/ui/Footer';
+import { CallButton } from '@/shared/ui/CallButton';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default async function FrontendLayout({
       </header>
       <div className="flex-1">{children}</div>
       <Footer />
+      <CallButton />
     </div>
   );
 }

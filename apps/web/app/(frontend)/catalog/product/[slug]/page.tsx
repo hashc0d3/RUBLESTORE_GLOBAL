@@ -23,9 +23,10 @@ export default async function ProductPage({ params, searchParams }: PageProps) {
   const { returnTo } = await searchParams;
 
   const payload = await getPayloadServer();
+  const isId = /^\d+$/.test(slug);
   const productDoc = await payload.find({
     collection: 'products',
-    where: { slug: { equals: slug } },
+    where: isId ? { id: { equals: parseInt(slug, 10) } } : { slug: { equals: slug } },
     limit: 1,
     depth: 1,
   });

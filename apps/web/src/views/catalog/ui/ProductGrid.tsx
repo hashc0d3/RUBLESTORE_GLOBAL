@@ -20,6 +20,18 @@ function getImageUrl(product: Product): string | null {
   return null;
 }
 
+/** Список объёмов памяти по цветам (из блока «Объём памяти» внутри цвета) */
+function getProductStorages(product: Product): string[] {
+  const colors = product.colors ?? [];
+  const set = new Set<string>();
+  colors.forEach((c) => {
+    (c.manufacturerCountries ?? []).forEach((m) => {
+      if (m.country) set.add(m.country);
+    });
+  });
+  return Array.from(set);
+}
+
 function ScrollHintIcon() {
   return (
     <svg
@@ -160,8 +172,10 @@ export function ProductGrid({ products, catalogReturnQuery }: ProductGridProps) 
               <h2 className="font-medium text-neutral-900 group-hover:underline">
                 {product.title}
               </h2>
-              {product.storage && (
-                <p className="mt-0.5 text-sm text-neutral-500">{product.storage}</p>
+              {getProductStorages(product).length > 0 && (
+                <p className="mt-0.5 text-sm text-neutral-500">
+                  {getProductStorages(product).join(', ')}
+                </p>
               )}
               <p className="mt-1 text-lg font-semibold text-neutral-900">
                 {minPrice.toLocaleString('ru-RU')} ₽
