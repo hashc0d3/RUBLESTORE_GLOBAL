@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getPayloadServer } from '@/shared/lib/payload-server';
+import { parseCategories } from '@/shared/dto';
 import type { Category } from '@/entities/category';
 import { HeaderNavScroll } from '@/shared/ui/HeaderNavScroll';
 import { Footer } from '@/shared/ui/Footer';
@@ -29,7 +30,7 @@ export default async function FrontendLayout({
     limit: 100,
     depth: 0,
   });
-  const categories = categoriesRes.docs as Category[];
+  const categories = parseCategories(categoriesRes.docs) as Category[];
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50 text-neutral-900 antialiased">

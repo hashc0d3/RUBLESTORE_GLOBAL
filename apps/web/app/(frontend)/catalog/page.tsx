@@ -1,4 +1,5 @@
 import { getPayloadServer } from '@/shared/lib/payload-server';
+import { parseCategories, parseProducts } from '@/shared/dto';
 import type { Category } from '@/entities/category';
 import type { Product } from '@/entities/product';
 import { CatalogPage } from '@/views/catalog';
@@ -26,7 +27,7 @@ export default async function CatalogRoute({ searchParams }: PageProps) {
     limit: 100,
     depth: 0,
   });
-  const categories = categoriesRes.docs as Category[];
+  const categories = parseCategories(categoriesRes.docs) as Category[];
 
   const selectedCategoryIds = categories
     .filter((c) => categorySlugs.includes(c.slug))
@@ -52,7 +53,7 @@ export default async function CatalogRoute({ searchParams }: PageProps) {
     limit: 50,
     where: productsWhere,
   });
-  const products = productsRes.docs as Product[];
+  const products = parseProducts(productsRes.docs) as Product[];
 
   return (
     <CatalogPage
