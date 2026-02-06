@@ -100,13 +100,13 @@ export function CatalogPageClient({
 
       <header className="w-full bg-white py-6">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-6 flex items-center justify-between">
             <h1 className="text-4xl font-bold tracking-tight text-neutral-900 md:text-5xl">
               Каталог
             </h1>
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
+              className="inline-flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-200/80 hover:text-neutral-900"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -125,7 +125,7 @@ export function CatalogPageClient({
           </div>
 
           {/* Поиск по товарам — подсказки при вводе, кнопка «Найти» применяет к списку ниже */}
-          <div className="mb-4 flex flex-wrap items-center gap-2" ref={searchWrapRef}>
+          <div className="mb-6 flex flex-wrap items-center gap-2" ref={searchWrapRef}>
             <div className="relative flex-1 min-w-0 md:max-w-sm">
               <label htmlFor="catalog-search" className="sr-only">
                 Поиск по товарам
@@ -200,10 +200,10 @@ export function CatalogPageClient({
             {index > 0 && <div className="h-2 w-full bg-neutral-100" aria-hidden />}
             <section className="w-full bg-white py-6">
               <div className="mx-auto max-w-6xl px-4">
-                <h2 className="mb-4 text-3xl font-bold tracking-tight text-neutral-900 md:text-4xl">
+                <h2 className="mb-6 text-3xl font-bold tracking-tight text-neutral-900 md:text-4xl">
                   {category.name}
                 </h2>
-                <p className="-mt-2 mb-4 text-sm text-neutral-500">
+                <p className="-mt-2 mb-6 text-sm text-neutral-500">
                   {categoryProducts.length} {categoryProducts.length === 1 ? 'товар' : categoryProducts.length >= 2 && categoryProducts.length <= 4 ? 'товара' : 'товаров'}
                 </p>
               </div>

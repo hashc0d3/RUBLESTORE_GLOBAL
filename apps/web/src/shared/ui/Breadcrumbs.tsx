@@ -45,12 +45,12 @@ export function Breadcrumbs({
               {item.href && !isLast ? (
                 <Link
                   href={item.href}
-                  className="rounded-full px-3 py-1.5 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
+                  className="py-1.5"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className={isLast ? 'text-neutral-900 px-3 py-1.5' : 'px-3 py-1.5'}>
+                <span className={isLast ? 'text-neutral-900 py-1.5' : 'py-1.5'}>
                   {item.label}
                 </span>
               )}
@@ -94,12 +94,12 @@ export function Breadcrumbs({
             {item.href && !isLast ? (
               <Link
                 href={item.href}
-                className="rounded-full px-3 py-1.5 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
+                className="py-1.5"
               >
                 {item.label}
               </Link>
             ) : (
-              <span className={isLast ? 'text-neutral-900 px-3 py-1.5' : 'px-3 py-1.5'}>
+              <span className={isLast ? 'text-neutral-900 py-1.5' : 'py-1.5'}>
                 {item.label}
               </span>
             )}

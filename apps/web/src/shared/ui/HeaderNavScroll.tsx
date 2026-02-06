@@ -15,6 +15,7 @@ const SITE_NAME = 'RubleStore';
 
 interface HeaderNavScrollProps {
   categories: Category[];
+  onCartOpenChange?: (isOpen: boolean) => void;
 }
 
 function Logo({ withPill }: { withPill: boolean }) {
@@ -64,12 +65,17 @@ function Logo({ withPill }: { withPill: boolean }) {
 
 export const HeaderNavScroll = observer(function HeaderNavScroll({
   categories,
+  onCartOpenChange,
 }: HeaderNavScrollProps) {
   const [atTop, setAtTop] = useState(true);
   const [isCompact, setIsCompact] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [cartBump, setCartBump] = useState(false);
+
+  useEffect(() => {
+    onCartOpenChange?.(cartOpen);
+  }, [cartOpen, onCartOpenChange]);
 
   useEffect(() => {
     cartStore.hydrate();
@@ -202,7 +208,7 @@ export const HeaderNavScroll = observer(function HeaderNavScroll({
   return (
     <>
       <div
-        className="mx-auto flex h-full min-h-0 w-full max-w-6xl items-center justify-center gap-2 px-4 transition-[padding,max-width] duration-300 ease-out"
+        className="mx-auto flex h-full min-h-0 w-full max-w-6xl items-center gap-2 pr-4 transition-[padding,max-width] duration-300 ease-out"
       >
         <Logo withPill={!atTop} />
         <div className="min-w-0 flex-1">
@@ -210,45 +216,45 @@ export const HeaderNavScroll = observer(function HeaderNavScroll({
         </div>
 
         <button
-          type="button"
-          onClick={() => setCartOpen(true)}
-          className={`inline-flex items-center justify-center text-neutral-800 hover:text-neutral-900 transition-all duration-300 ${
-            cartHasPill
-              ? 'mt-4 h-11 px-3 py-2.5 rounded-full shadow-sm'
-              : 'p-1.5 bg-transparent'
-          }`}
-          style={
-            cartHasPill
-              ? {
-                  background:
-                    'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(248,250,252,0.9) 50%, rgba(255,241,235,0.88) 100%)',
-                  backdropFilter: 'saturate(180%) blur(20px)',
-                  WebkitBackdropFilter: 'saturate(180%) blur(20px)',
-                  boxShadow:
-                    '0 0 0 1px rgba(0,0,0,0.04), 0 2px 6px -2px rgba(0,0,0,0.08)',
-                }
-              : undefined
-          }
-          aria-label="Открыть корзину"
-        >
-          <span className="sr-only">Открыть корзину</span>
-          <div className="flex items-center gap-1">
-            <Image
-              src="/bag.png"
-              alt=""
-              width={18}
-              height={18}
-              className="h-4 w-4 object-contain"
-            />
-            <span
-              className={`text-[11px] text-neutral-500 transform transition-transform duration-200 ${
-                cartBump ? 'scale-110' : 'scale-100'
-              }`}
-            >
-              {cartStore.totalItems}
-            </span>
-          </div>
-        </button>
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className={`inline-flex items-center justify-center text-neutral-800 hover:text-neutral-900 transition-all duration-300 ${
+              cartHasPill
+                ? 'mt-4 h-11 px-3 py-2.5 rounded-full shadow-sm'
+                : 'p-1.5 bg-transparent'
+            }`}
+            style={
+              cartHasPill
+                ? {
+                    background:
+                      'linear-gradient(135deg, rgba(255,255,255,0.85) 0%, rgba(248,250,252,0.9) 50%, rgba(255,241,235,0.88) 100%)',
+                    backdropFilter: 'saturate(180%) blur(20px)',
+                    WebkitBackdropFilter: 'saturate(180%) blur(20px)',
+                    boxShadow:
+                      '0 0 0 1px rgba(0,0,0,0.04), 0 2px 6px -2px rgba(0,0,0,0.08)',
+                  }
+                : undefined
+            }
+            aria-label="Открыть корзину"
+          >
+            <span className="sr-only">Открыть корзину</span>
+            <div className="flex items-center gap-1">
+              <Image
+                src="/bag.png"
+                alt=""
+                width={18}
+                height={18}
+                className="h-4 w-4 object-contain"
+              />
+              <span
+                className={`text-[11px] text-neutral-500 transform transition-transform duration-200 ${
+                  cartBump ? 'scale-110' : 'scale-100'
+                }`}
+              >
+                {cartStore.totalItems}
+              </span>
+            </div>
+          </button>
       </div>
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
     </>

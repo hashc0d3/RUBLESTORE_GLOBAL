@@ -3,7 +3,11 @@
 import Image from 'next/image';
 import { useState } from 'react';
 
-export function CallButton() {
+interface CallButtonProps {
+  isCartOpen?: boolean;
+}
+
+export function CallButton({ isCartOpen = false }: CallButtonProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -44,6 +48,10 @@ export function CallButton() {
       setPhone('');
     }, 1500);
   };
+
+  if (isCartOpen) {
+    return null;
+  }
 
   return (
     <>

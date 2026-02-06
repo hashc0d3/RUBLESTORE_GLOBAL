@@ -51,8 +51,8 @@ export default observer(function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-8">
-      <div className="mx-auto max-w-7xl px-4">
+    <div className="min-h-screen bg-white py-12">
+      <div className="mx-auto max-w-6xl px-4">
         <Breadcrumbs
           items={[
             { label: 'Главная страница', href: '/' },
@@ -61,12 +61,12 @@ export default observer(function CheckoutPage() {
           ]}
         />
 
-        <div className="mb-8 mt-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-neutral-900">Оформление заказа</h1>
+        <div className="mb-12 mt-8 flex items-center justify-between">
+          <h1 className="text-3xl font-semibold tracking-tight text-neutral-900 md:text-4xl">Оформление заказа</h1>
           <button
             type="button"
             onClick={handleBack}
-            className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:bg-neutral-200/80 hover:text-neutral-900"
+            className="inline-flex items-center gap-2 rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium text-neutral-700 transition-colors hover:border-neutral-400 hover:bg-neutral-200/80 hover:text-neutral-900"
             aria-label="Вернуться назад"
           >
             <svg
@@ -85,14 +85,14 @@ export default observer(function CheckoutPage() {
           </button>
         </div>
 
-        <div className="grid gap-8 lg:grid-cols-2">
+        <div className="grid gap-12 lg:grid-cols-2">
           {/* Левая колонка: Оплата */}
-          <div className="space-y-6">
-            <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200">
-              <h2 className="mb-4 text-lg font-semibold text-neutral-900">Способ оплаты</h2>
-              
-              <div className="space-y-3">
-                <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-neutral-200 p-4 transition-colors hover:border-neutral-300">
+          <div className="space-y-8">
+            <section className="rounded-2xl border border-neutral-100 bg-white p-8 shadow-sm">
+              <h2 className="mb-6 text-xl font-semibold text-neutral-900">Способ оплаты</h2>
+
+              <div className="space-y-4">
+                <label className="flex cursor-pointer items-start gap-4 rounded-xl border border-neutral-200 bg-neutral-50/50 p-5 transition-all hover:border-neutral-300 hover:bg-neutral-100/50">
                   <input
                     type="radio"
                     name="payment"
@@ -108,7 +108,7 @@ export default observer(function CheckoutPage() {
                   </div>
                 </label>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-neutral-200 p-4 transition-colors hover:border-neutral-300">
+                <label className="flex cursor-pointer items-start gap-4 rounded-xl border border-neutral-200 bg-neutral-50/50 p-5 transition-all hover:border-neutral-300 hover:bg-neutral-100/50">
                   <input
                     type="radio"
                     name="payment"
@@ -123,7 +123,7 @@ export default observer(function CheckoutPage() {
                   </div>
                 </label>
 
-                <label className="flex cursor-pointer items-start gap-3 rounded-xl border-2 border-neutral-200 p-4 transition-colors hover:border-neutral-300">
+                <label className="flex cursor-pointer items-start gap-4 rounded-xl border border-neutral-200 bg-neutral-50/50 p-5 transition-all hover:border-neutral-300 hover:bg-neutral-100/50">
                   <input
                     type="radio"
                     name="payment"
@@ -140,24 +140,24 @@ export default observer(function CheckoutPage() {
               </div>
             </section>
 
-            <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200">
-              <h2 className="mb-4 text-lg font-semibold text-neutral-900">Контактные данные</h2>
+            <section className="rounded-2xl border border-neutral-100 bg-white p-8 shadow-sm">
+              <h2 className="mb-6 text-xl font-semibold text-neutral-900">Контактные данные</h2>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+                  <label className="mb-2 block text-sm font-medium text-neutral-700">
                     Имя <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="text"
                     required
-                    className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm transition-colors focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                    className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm transition-colors focus:border-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
                     placeholder="Введите ваше имя"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+                  <label className="mb-2 block text-sm font-medium text-neutral-700">
                     Телефон <span className="text-red-500">*</span>
                   </label>
                   <input
@@ -165,20 +165,20 @@ export default observer(function CheckoutPage() {
                     required
                     value={phone}
                     onChange={handlePhoneChange}
-                    className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm transition-colors focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                    className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm transition-colors focus:border-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
                     placeholder="+7 (___) ___-__-__"
                     maxLength={18}
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-neutral-700">
+                  <label className="mb-2 block text-sm font-medium text-neutral-700">
                     Адрес доставки <span className="text-red-500">*</span>
                   </label>
                   <textarea
                     rows={3}
                     required
-                    className="w-full rounded-xl border border-neutral-300 px-4 py-2.5 text-sm transition-colors focus:border-neutral-900 focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
+                    className="w-full rounded-xl border border-neutral-200 bg-neutral-50/50 px-4 py-3 text-sm transition-colors focus:border-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-neutral-900/10"
                     placeholder="Введите адрес доставки"
                   />
                 </div>
@@ -197,8 +197,8 @@ export default observer(function CheckoutPage() {
 
           {/* Правая колонка: Товары из корзины */}
           <div>
-            <section className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-neutral-200">
-              <h2 className="mb-4 text-lg font-semibold text-neutral-900">Ваш заказ</h2>
+            <section className="rounded-2xl border border-neutral-100 bg-white p-8 shadow-sm">
+              <h2 className="mb-6 text-xl font-semibold text-neutral-900">Ваш заказ</h2>
 
               {cartStore.totalItems === 0 ? (
                 <p className="text-sm text-neutral-500">Корзина пуста</p>
@@ -208,7 +208,7 @@ export default observer(function CheckoutPage() {
                     {cartStore.items.map((item) => (
                       <li
                         key={item.id}
-                        className="flex items-start gap-4 rounded-xl border border-neutral-200 p-4"
+                        className="flex items-start gap-4 rounded-xl border border-neutral-100 bg-neutral-50/50 p-4"
                       >
                         <div className="flex-1 space-y-1">
                           <p className="text-sm font-semibold text-neutral-900">{item.title}</p>
@@ -226,12 +226,12 @@ export default observer(function CheckoutPage() {
                     ))}
                   </ul>
 
-                  <div className="mt-6 space-y-2 border-t border-neutral-200 pt-4">
-                    <div className="flex items-center justify-between text-sm text-neutral-700">
+                  <div className="mt-6 space-y-3 border-t border-neutral-100 pt-6">
+                    <div className="flex items-center justify-between text-sm text-neutral-600">
                       <span>Всего товаров</span>
-                      <span className="font-semibold">{cartStore.totalItems}</span>
+                      <span className="font-medium">{cartStore.totalItems}</span>
                     </div>
-                    <div className="flex items-center justify-between text-lg font-bold text-neutral-900">
+                    <div className="flex items-center justify-between text-xl font-semibold text-neutral-900">
                       <span>Итого</span>
                       <span>{cartStore.totalPrice.toLocaleString('ru-RU')} ₽</span>
                     </div>

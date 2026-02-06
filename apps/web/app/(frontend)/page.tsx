@@ -81,7 +81,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/catalog?category=airpods"
-              className="rounded-full bg-[#0071e3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0077ed]"
+              className="inline-flex rounded-full bg-[#0071e3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0077ed]"
             >
               Каталог AirPods
             </Link>
@@ -90,8 +90,8 @@ export default function HomePage() {
       </section>
 
       {/* Десктоп: две колонки — картинка слева, текст справа */}
-      <section className="hidden w-full min-h-[280px] bg-white md:block md:h-[60vh] md:min-h-[320px]">
-        <div className="mx-auto grid h-full min-h-[280px] max-w-6xl grid-cols-2 items-stretch gap-12 px-12 py-0 lg:px-16">
+      <section className="hidden w-full min-h-[280px] bg-white md:block md:h-[60vh] md:min-h-[320px] md:pb-12">
+        <div className="mx-auto grid h-full min-h-[280px] max-w-6xl grid-cols-2 items-center gap-12 px-12 py-0 lg:px-16">
           <div className="relative flex h-full w-full min-h-0 items-center justify-center p-0">
             <div className="relative h-full w-full min-h-0">
               <Image
@@ -103,7 +103,7 @@ export default function HomePage() {
               />
             </div>
           </div>
-          <div className="flex flex-col items-center justify-center py-12 text-center md:text-center">
+          <div className="flex flex-col items-start justify-center py-12 text-left">
             <div className="flex max-w-md flex-col gap-6">
               <h2 className="text-4xl font-semibold tracking-tight text-neutral-900 md:text-5xl lg:text-6xl">
                 AirPods и аксессуары
@@ -111,12 +111,14 @@ export default function HomePage() {
               <p className="text-lg text-neutral-600 md:text-xl">
                 Улучшите звук с AirPods, чехлами, зарядками и не только.
               </p>
-              <Link
-                href="/catalog?category=airpods"
-                className="rounded-full bg-[#0071e3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0077ed]"
-              >
-                Каталог AirPods
-              </Link>
+              <div>
+                <Link
+                  href="/catalog?category=airpods"
+                  className="inline-flex rounded-full bg-[#0071e3] px-6 py-2.5 text-sm font-medium text-white transition hover:bg-[#0077ed]"
+                >
+                  Каталог AirPods
+                </Link>
+              </div>
             </div>
           </div>
         </div>

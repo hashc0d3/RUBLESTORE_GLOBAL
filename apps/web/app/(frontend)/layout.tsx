@@ -2,9 +2,7 @@ import type { Metadata } from 'next';
 import { getPayloadServer } from '@/shared/lib/payload-server';
 import { parseCategories } from '@/shared/dto';
 import type { Category } from '@/entities/category';
-import { HeaderNavScroll } from '@/shared/ui/HeaderNavScroll';
-import { Footer } from '@/shared/ui/Footer';
-import { CallButton } from '@/shared/ui/CallButton';
+import { LayoutClient } from '@/shared/ui/LayoutClient';
 import '../globals.css';
 
 export const metadata: Metadata = {
@@ -33,14 +31,5 @@ export default async function FrontendLayout({
   });
   const categories = parseCategories(categoriesRes.docs) as Category[];
 
-  return (
-    <div className="flex min-h-screen flex-col bg-neutral-50 text-neutral-900 antialiased">
-      <header className="sticky top-0 z-50 flex h-11 min-h-11 items-center py-0">
-        <HeaderNavScroll categories={categories} />
-      </header>
-      <div className="flex-1">{children}</div>
-      <Footer />
-      <CallButton />
-    </div>
-  );
+  return <LayoutClient categories={categories}>{children}</LayoutClient>;
 }
