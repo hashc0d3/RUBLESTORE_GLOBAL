@@ -55,7 +55,7 @@ export const ProductDto = z.object({
   description: z.string().nullable().optional(),
   status: z.enum(['draft', 'published']),
   storage: ProductStorageDto.nullable().optional(),
-  category: z.union([z.number(), z.object({ id: z.number(), name: z.string().optional(), slug: z.string().optional() })]).optional(),
+  category: z.union([z.number(), z.object({ id: z.number(), name: z.string().optional(), slug: z.string().optional() })]).nullable().optional(),
   colors: z.array(ProductColorDto).nullable().optional(),
 }).passthrough();
 
