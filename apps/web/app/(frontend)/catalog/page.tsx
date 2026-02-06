@@ -33,7 +33,7 @@ export default async function CatalogRoute({ searchParams }: PageProps) {
     .filter((c) => categorySlugs.includes(c.slug))
     .map((c) => c.id);
 
-  const productsWhere: Record<string, unknown> = {
+  const productsWhere: any = {
     status: { equals: 'published' },
   };
   if (selectedCategoryIds.length === 1) {
