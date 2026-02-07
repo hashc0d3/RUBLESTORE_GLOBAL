@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ruble-store-postgres
+      POSTGRES_DB: ruble_store
     ports:
       - "5433:5432"
     volumes:
@@ -26,7 +26,7 @@ services:
     ports:
       - "0.0.0.0:4000:4000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ruble-store-postgres
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ruble_store
       PORT: "4000"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
     depends_on:
