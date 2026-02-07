@@ -20,8 +20,8 @@ interface HeaderNavScrollProps {
 
 function Logo({ withPill }: { withPill: boolean }) {
   const pillClasses = withPill
-    ? 'mt-4 h-11 py-2 pl-3 pr-3 md:py-2.5 md:pl-4 md:pr-4'
-    : 'py-1.5 pl-3 pr-3 md:pl-4 md:pr-4';
+    ? 'mt-4 h-11 py-2 px-3 md:py-2.5 md:px-3'
+    : 'py-1.5 px-0';
 
   return (
     <Link
@@ -119,7 +119,9 @@ export const HeaderNavScroll = observer(function HeaderNavScroll({
             mobileOpen ? 'gap-4' : 'gap-2'
           } transition-[padding,max-width] duration-300 ease-out px-4`}
         >
-          <Logo withPill={logoHasPill} />
+          <div className="pl-0">
+            <Logo withPill={logoHasPill} />
+          </div>
 
           {/* Правый блок: корзина + меню в одном liquid glass контейнере */}
           <div
@@ -208,7 +210,7 @@ export const HeaderNavScroll = observer(function HeaderNavScroll({
   return (
     <>
       <div
-        className="mx-auto flex h-full min-h-0 w-full max-w-6xl items-center gap-2 pr-4 transition-[padding,max-width] duration-300 ease-out"
+        className="mx-auto flex h-full min-h-0 w-full max-w-6xl items-center gap-2 px-4 transition-[padding,max-width] duration-300 ease-out"
       >
         <Logo withPill={!atTop} />
         <div className="min-w-0 flex-1">
