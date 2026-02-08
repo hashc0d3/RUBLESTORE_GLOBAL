@@ -1,4 +1,4 @@
-import type { MigrateUpArgs, MigrateDownArgs } from '@payloadcms/db-postgres';
+import type { MigrateUpArgs } from '@payloadcms/db-postgres';
 import { sql } from '@payloadcms/db-postgres';
 
 const SEED_CATEGORIES = [
@@ -15,17 +15,21 @@ const SEED_CATEGORIES = [
 
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   for (const { name, slug } of SEED_CATEGORIES) {
+    // ИСПРАВЛЕНО: используем параметризованные запросы вместо конкатенации строк
     await db.execute(
-      sql.raw(
-        `INSERT INTO "categories" ("name", "slug") VALUES ('${name.replace(/'/g, "''")}', '${slug.replace(/'/g, "''")}') ON CONFLICT (slug) DO NOTHING`
-      )
+      sql`INSERT INTO "categories" ("name", "slug") VALUES (${name}, ${slug}) ON CONFLICT (slug) DO NOTHING`
     );
   }
 }
 
-export async function down({ db }: MigrateDownArgs): Promise<void> {
-  const slugs = SEED_CATEGORIES.map((c) => `'${c.slug.replace(/'/g, "''")}'`).join(', ');
-  await db.execute(
-    sql.raw(`DELETE FROM "categories" WHERE "slug" IN (${slugs})`)
-  );
+export async function down({ db }: MigrateUpArgs): Promise<void> {
+  const slugs = SEED_CATEGORIES.map((c) => c.slug);
+  // ИСПРАВЛЕНО: используем VARIADIC параметры вместо IN (...)
+  // Удаляем только категории, которые мы создали
+  for (const slug of slugs) {
+    await db.execute(
+      sql`DELETE FROM "categories" WHERE "slug" = ${slug}`
+    );
+  }
 }
+

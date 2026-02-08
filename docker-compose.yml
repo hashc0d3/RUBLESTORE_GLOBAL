@@ -5,10 +5,11 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-change-me-in-production-very-secure-password}
       POSTGRES_DB: ruble_store
-    ports:
-      - "5433:5432"
+    # ВАЖНО: НЕ открывать порт во внешний интернет. Доступ только из контейнеров.
+    expose:
+      - "5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -16,6 +17,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    # Максимальная защита: слушаем только на внутренней сети
+    command:
+      - "postgres"
+      - "-c"
+      - "log_statement=all"
+      - "-c"
+      - "log_duration=on"
 
   api:
     build:
@@ -26,12 +34,14 @@ services:
     ports:
       - "0.0.0.0:4000:4000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ruble_store
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-change-me-in-production-very-secure-password}@postgres:5432/ruble_store
       PORT: "4000"
       CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3001}
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - default
 
   web:
     build:
@@ -45,7 +55,7 @@ services:
     ports:
       - "0.0.0.0:3001:3000"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/ruble_store
+      DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-change-me-in-production-very-secure-password}@postgres:5432/ruble_store
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-ruble-store-dev-secret-key-32-chars-minimum}
       PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-http://localhost:3001}
       PAYLOAD_DISABLE_PUSH: "true"
@@ -57,6 +67,8 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - default
 
 volumes:
   postgres_data:

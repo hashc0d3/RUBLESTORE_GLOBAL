@@ -1,9 +1,6 @@
-import type { MigrateUpArgs, MigrateDownArgs } from '@payloadcms/db-postgres';
+import type { MigrateUpArgs } from '@payloadcms/db-postgres';
 import { sql } from '@payloadcms/db-postgres';
 
-function esc(s: string): string {
-  return s.replace(/'/g, "''");
-}
 
 const SEED_PRODUCTS: Array<{
   categorySlug: string;
@@ -172,26 +169,24 @@ const SEED_PRODUCTS: Array<{
 
 export async function up({ db }: MigrateUpArgs): Promise<void> {
   for (const p of SEED_PRODUCTS) {
-    const title = "'" + esc(p.title) + "'";
-    const slug = "'" + esc(p.slug) + "'";
-    const description = "'" + esc(p.description) + "'";
-    const catSlug = "'" + esc(p.categorySlug) + "'";
+    // ИСПРАВЛЕНО: используем параметризованные запросы вместо конкатенации строк
+    // Это полностью защищает от SQL-injection
     await db.execute(
-      sql.raw(
-        `INSERT INTO "products" ("title", "slug", "description", "price", "currency", "status", "category_id")
-        SELECT ${title}, ${slug}, ${description}, ${p.price}, 'RUB', 'published', c.id
+      sql`INSERT INTO "products" ("title", "slug", "description", "price", "currency", "status", "category_id")
+        SELECT ${p.title}, ${p.slug}, ${p.description}, ${p.price}, 'RUB', 'published', c.id
         FROM "categories" c
-        WHERE c.slug = ${catSlug}
+        WHERE c.slug = ${p.categorySlug}
         LIMIT 1
         ON CONFLICT (slug) DO NOTHING`
-      )
     );
   }
 }
 
-export async function down({ db }: MigrateDownArgs): Promise<void> {
-  const slugs = SEED_PRODUCTS.map((p) => `'${esc(p.slug)}'`).join(', ');
-  await db.execute(
-    sql.raw(`DELETE FROM "products" WHERE "slug" IN (${slugs})`)
-  );
+export async function down({ db }: MigrateUpArgs): Promise<void> {
+  // ИСПРАВЛЕНО: используем параметризованные запросы вместо IN (...)
+  for (const p of SEED_PRODUCTS) {
+    await db.execute(
+      sql`DELETE FROM "products" WHERE "slug" = ${p.slug}`
+    );
+  }
 }
