@@ -7,9 +7,10 @@ cd "$(dirname "$0")/.."
 EMAIL="${1:?email}"
 PASSWORD="${2:?password}"
 
-# Секрет из .env или дефолт dev (задайте CREATE_ADMIN_SECRET в production)
-SECRET=$(grep -E '^CREATE_ADMIN_SECRET=|^SEED_SECRET=' .env 2>/dev/null | head -1 | cut -d= -f2-)
-SECRET=${SECRET:-ruble-store-seed-dev-do-not-use-in-production}
+# Секрет из контейнера web (должен совпадать с CREATE_ADMIN_SECRET в docker-compose)
+SECRET=$(docker compose exec -T web sh -c \
+  'printf "%s" "${CREATE_ADMIN_SECRET:-${SEED_SECRET:-ruble-store-seed-dev-do-not-use-in-production}}"' \
+  | tr -d '\r\n')
 
 ENC_EMAIL=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$EMAIL'''))")
 ENC_PASS=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$PASSWORD'''))")
@@ -21,6 +22,6 @@ if echo "$RESP" | grep -q '"ok":true'; then
   echo "Готово. Вход: https://www.rublestore.ru/admin"
   echo "Email: $EMAIL"
 else
-  echo "Ошибка. Если 404 — пересоберите web: docker compose up -d --build web"
+  echo "Ошибка. Проверьте ключ: docker compose exec web printenv CREATE_ADMIN_SECRET"
   exit 1
 fi

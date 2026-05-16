@@ -61,6 +61,8 @@ services:
       PAYLOAD_DISABLE_PUSH: "true"
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000}
       NEXT_SERVER_ACTIONS_ENCRYPTION_KEY: ${NEXT_SERVER_ACTIONS_ENCRYPTION_KEY:-}
+      CREATE_ADMIN_SECRET: ${CREATE_ADMIN_SECRET:-ruble-store-seed-dev-do-not-use-in-production}
+      SEED_SECRET: ${SEED_SECRET:-ruble-store-seed-dev-do-not-use-in-production}
     volumes:
       # Загрузки Payload (картинки товаров) — без тома при деплое всё теряется
       - web_media:/app/apps/web/media
