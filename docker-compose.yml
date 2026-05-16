@@ -44,6 +44,7 @@ services:
         condition: service_healthy
     networks:
       - default
+      - infra
 
   web:
     build:
@@ -73,6 +74,12 @@ services:
         condition: service_healthy
     networks:
       - default
+      - infra
+
+networks:
+  infra:
+    external: true
+    name: ${INFRA_DOCKER_NETWORK:-infra-proxy_default}
 
 volumes:
   postgres_data:
