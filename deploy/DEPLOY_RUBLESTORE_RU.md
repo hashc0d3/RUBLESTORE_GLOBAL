@@ -138,9 +138,8 @@ docker exec infra-nginx ls /etc/nginx/conf.d/
 cd /opt/RUBLESTORE_GLOBAL
 git pull origin main
 
-# путь INFRA_CONF — каталог conf.d на ХОСТЕ, смонтированный в infra-nginx
-# (узнайте из docker inspect выше, пример):
-INFRA_CONF=/opt/infra/nginx/conf.d
+# путь INFRA_CONF — каталог conf.d на ХОСТЕ (на этом сервере):
+INFRA_CONF=/opt/infra-proxy/conf.d
 
 cp deploy/nginx/infra-rublestore.ru.conf "$INFRA_CONF/30-rublestore.ru.conf"
 
