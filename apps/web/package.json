@@ -10,7 +10,8 @@
     "db:studio": "payload dev",
     "db:generate": "payload generate:types",
     "db:migrate": "payload migrate",
-    "db:migrate:create": "payload migrate:create"
+    "db:migrate:create": "payload migrate:create",
+    "admin:create": "npx tsx scripts/create-admin.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "^3.0.0",
