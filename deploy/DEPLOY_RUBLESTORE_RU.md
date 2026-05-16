@@ -111,20 +111,22 @@ curl -sI http://127.0.0.1:3001 | head -5
 
 ---
 
-## 5. Nginx (как у vegan-skupka)
+## 5. Nginx (только новый файл, sotik/остальные не трогаем)
+
+На сервере уже работает Nginx на 80/443. Добавляем **только** RubleStore:
 
 ```bash
-apt-get update
-apt-get install -y nginx certbot python3-certbot-nginx
+cp /opt/RUBLESTORE_GLOBAL/deploy/nginx/30-rublestore.ru.conf /etc/nginx/conf.d/30-rublestore.ru.conf
 
-cp /opt/RUBLESTORE_GLOBAL/deploy/nginx/rublestore.ru.conf /etc/nginx/sites-available/rublestore.ru
+# Удалите дубликат, если создавали раньше через sites-enabled:
+rm -f /etc/nginx/sites-enabled/rublestore.ru
 
-ln -sf /etc/nginx/sites-available/rublestore.ru /etc/nginx/sites-enabled/rublestore.ru
-rm -f /etc/nginx/sites-enabled/default
-
-nginx -t
-systemctl reload nginx
+nginx -t && systemctl reload nginx
 ```
+
+Сертификат: `/etc/letsencrypt/live/rublestore.ru/` (уже был на сервере).
+
+**Если `nginx -t` падает на `http2 on` в чужом конфиге** — это не из-за RubleStore. Без исправления синтаксиса в **уже существующих** файлах (`conf.d/20-sotik77.conf` и т.п.) reload невозможен для **любого** сайта. Минимальная правка sotik (без смены proxy/доменов): убрать строку `http2 on;`, в `listen 443` добавить `http2` → `listen 443 ssl http2;`. Поведение sotik77 не меняется.
 
 Проверка по HTTP (до сертификата):
 
