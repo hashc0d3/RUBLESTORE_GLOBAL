@@ -147,54 +147,25 @@ sudo crontab -e
 sudo crontab -l
 ```
 
-## Настройка Nginx (опционально, для HTTPS)
+## Настройка Nginx + HTTPS (production)
 
-### 11. Установить и настроить Nginx + Let's Encrypt
+### 11. Домен rublestore.ru
+
+Пошаговая инструкция для **www.rublestore.ru**: [deploy/DEPLOY_RUBLESTORE_RU.md](./deploy/DEPLOY_RUBLESTORE_RU.md).
+
+Готовый конфиг Nginx: [deploy/nginx/rublestore.ru.conf](./deploy/nginx/rublestore.ru.conf).
+
+**Важно:** маршрут `/api` обслуживает **Payload** внутри контейнера web. Не проксируйте `/api` на NestJS (порт 4000). NestJS при необходимости выносите на префикс `/store-api/` (см. конфиг в `deploy/nginx/`).
+
+Кратко:
 
 ```bash
-# Установить Nginx
 sudo apt-get update && sudo apt-get install -y nginx certbot python3-certbot-nginx
-
-# Создать конфиг
-sudo tee /etc/nginx/sites-available/ruble-store > /dev/null << 'EOF'
-server {
-    listen 80;
-    server_name your-domain.com;
-
-    location / {
-        proxy_pass http://localhost:3001;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection "upgrade";
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    location /api {
-        proxy_pass http://localhost:4000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-EOF
-
-# Активировать конфиг
-sudo ln -s /etc/nginx/sites-available/ruble-store /etc/nginx/sites-enabled/
-sudo nginx -t
-
-# Получить SSL сертификат
-sudo certbot --nginx -d your-domain.com
-
-# Перезагрузить Nginx
-sudo systemctl restart nginx
+sudo cp deploy/nginx/rublestore.ru.conf /etc/nginx/sites-available/rublestore.ru
+sudo ln -sf /etc/nginx/sites-available/rublestore.ru /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d www.rublestore.ru -d rublestore.ru
 ```
-
-После этого приложение будет доступно по HTTPS: https://your-domain.com
 
 ## Мониторинг
 
