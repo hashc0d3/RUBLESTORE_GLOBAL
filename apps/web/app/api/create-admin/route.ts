@@ -33,6 +33,7 @@ export async function GET(request: NextRequest) {
       where: { email: { equals: email } },
       limit: 1,
       depth: 0,
+      overrideAccess: true,
     });
 
     if (existing.docs.length > 0) {
@@ -40,6 +41,7 @@ export async function GET(request: NextRequest) {
         collection: 'users',
         id: existing.docs[0].id,
         data: { password },
+        overrideAccess: true,
       });
       return NextResponse.json({ ok: true, action: 'password_updated', email });
     }
@@ -47,6 +49,7 @@ export async function GET(request: NextRequest) {
     await payload.create({
       collection: 'users',
       data: { email, password, name: email.split('@')[0] },
+      overrideAccess: true,
     });
 
     return NextResponse.json({ ok: true, action: 'created', email });

@@ -21,6 +21,7 @@ async function main() {
     where: { email: { equals: email } },
     limit: 1,
     depth: 0,
+    overrideAccess: true,
   });
 
   if (existing.docs.length > 0) {
@@ -28,12 +29,14 @@ async function main() {
       collection: 'users',
       id: existing.docs[0].id,
       data: { password },
+      overrideAccess: true,
     });
     console.log(`Пароль обновлён для: ${email}`);
   } else {
     await payload.create({
       collection: 'users',
       data: { email, password, name: email.split('@')[0] },
+      overrideAccess: true,
     });
     console.log(`Пользователь создан: ${email}`);
   }
