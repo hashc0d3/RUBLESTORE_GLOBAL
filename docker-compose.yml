@@ -31,9 +31,10 @@ services:
       dockerfile: apps/api/Dockerfile
     container_name: ruble-store-api
     restart: unless-stopped
-    # Только localhost — снаружи доступ через Nginx (/store-api/)
+    # 0.0.0.0 — чтобы infra-nginx (Docker) достучался через host.docker.internal:4000
+    # Снаружи сервера не открывайте 4000 в firewall (доступ через Nginx /store-api/)
     ports:
-      - "127.0.0.1:4000:4000"
+      - "4000:4000"
     environment:
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-change-me-in-production-very-secure-password}@postgres:5432/ruble_store
       PORT: "4000"
@@ -53,9 +54,10 @@ services:
         PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL:-http://localhost:3001}
     container_name: ruble-store-web
     restart: unless-stopped
-    # Только localhost — снаружи доступ через Nginx (443)
+    # 0.0.0.0 — чтобы infra-nginx (Docker) достучался через host.docker.internal:3001
+    # Снаружи сервера не открывайте 3001 в firewall (доступ через Nginx 443)
     ports:
-      - "127.0.0.1:3001:3000"
+      - "3001:3000"
     environment:
       DATABASE_URL: postgresql://postgres:${DB_PASSWORD:-change-me-in-production-very-secure-password}@postgres:5432/ruble_store
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-ruble-store-dev-secret-key-32-chars-minimum}
